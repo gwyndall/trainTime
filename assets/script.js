@@ -55,7 +55,8 @@ function populate() {
         const minsToNext = nextTrain(snap.time, snap.freq);
         const minsFormat = moment(minsToNext, "mm");
         const minsField = "<td>"+minsToNext+"</td>";
-        const next = "<td>"+nextTrain(moment().add(minsToNext, 'minutes'))+"</td>";
+        // const next = "<td>"+ nextTrain(moment().add(minsToNext, 'minutes'))+"</td>";
+        const next = "<td></td>";
 
         $("tbody").append("<tr>" + trnName + dest + freq + next + minsField + "</tr>");
 
@@ -75,19 +76,21 @@ function populate() {
     // Calculate time until next train
 
     function nextTrain(start, freq) {
-        var now = moment().format("H:mm");
-        var frequency = moment(freq, "mm");
-        var began = moment(start, "H:mm")
+        var now = moment().format("HH:mm");
+        var frequency = moment(freq, "minutes");
+        var began = moment(start, "HH:mm").subtract(1, "weeks");
         console.log(now);
-        console.log(began);
-        var diff = moment(now, "H:mm") - moment(start, "H:mm");
-        console.log("dif "+moment(diff).format("H:mm"));
+        console.log("start = " + began);
+        var diff = moment().diff(moment(began), "minutes");
+        console.log("diff "+ diff);
         var mstRecent = diff % freq;
-        console.log(moment(mstRecent).format("H:mm"));
+        console.log(moment(mstRecent, "minutes"));
         var next = freq - mstRecent;
-        console.log(moment(next).format("H:mm") + " until next");
-        // var nextMins = moment(next, "H:mm");
-        return(next);
+        console.log(moment(next) + " until next");
+        // var nextMins = moment(next, "HH:mm");
+        var timeDue = moment().add(next, "minutes");
+        console.log("********");
+        return(next, timeDue);
     };
 
 }
