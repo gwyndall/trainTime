@@ -47,7 +47,7 @@ function populate() {
         // console.log(childSnapshot.val().destination);
         // console.log(childSnapshot.val().time);
         // console.log(childSnapshot.val().freq);
-
+ 
         // full list of trains
         const trnName = "<td>" + snap.train + "</td>"
         const dest = "<td>" + snap.destination + "</td>"
@@ -55,10 +55,10 @@ function populate() {
         const minsToNext = nextTrain(snap.time, snap.freq);
         const minsFormat = moment(minsToNext, "mm");
         const minsField = "<td>"+minsToNext+"</td>";
-        // const next = "<td>"+ nextTrain(moment().add(minsToNext, 'minutes'))+"</td>";
-        const next = "<td></td>";
-
-        $("tbody").append("<tr>" + trnName + dest + freq + next + minsField + "</tr>");
+        const nextDue = incoming(minsToNext);
+        const nextDueForm = moment(nextDue).format("HH:mm");
+        const timeDue = "<td>" + nextDueForm + "</td>";
+        $("tbody").append("<tr>" + trnName + dest + freq + timeDue + minsField + "</tr>");
 
         // Handle the errors
     }, function (errorObject) {
@@ -88,9 +88,14 @@ function populate() {
         var next = freq - mstRecent;
         console.log(moment(next) + " until next");
         // var nextMins = moment(next, "HH:mm");
-        var timeDue = moment().add(next, "minutes");
         console.log("********");
-        return(next, timeDue);
+        return(next);
     };
 
+    function incoming(next) {
+        var timeDue = moment().add(next, "minutes");
+        console.log("incoming at " + timeDue);
+        return timeDue;
+    }
+ 
 }
