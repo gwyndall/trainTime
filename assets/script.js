@@ -26,7 +26,7 @@ function populate() {
         // Don't refresh the page!
         event.preventDefault();
 
-        // Don't forget to provide initial data to your Firebase database.
+        // Provide input data to Firebase database.
         train = $("#input-name").val().trim();
         destination = $("#input-dest").val().trim();
         time = $("#input-time").val().trim();
@@ -40,62 +40,51 @@ function populate() {
 
     });
 
+    // Create new entry for each train in database to table
+
     database.ref().on("child_added", function (childSnapshot) {
         snap = childSnapshot.val()
-        // Log everything that's coming out of snapshot
-        // console.log(childSnapshot.val().train);
-        // console.log(childSnapshot.val().destination);
-        // console.log(childSnapshot.val().time);
-        // console.log(childSnapshot.val().freq);
- 
-        // full list of trains
-        const trnName = "<td>" + snap.train + "</td>"
-        const dest = "<td>" + snap.destination + "</td>"
-        const freq = "<td>" + snap.freq + "</td>"     
+
+        const trnName = `<td> ${snap.train} </td>`
+        const dest = `<td> ${snap.destination} </td>`
+        const freq = `<td> ${snap.freq} </td>`
+
+        // Calculate how many minutes until next train is due
         const minsToNext = nextTrain(snap.time, snap.freq);
-        const minsFormat = moment(minsToNext, "mm");
-        const minsField = "<td>"+minsToNext+"</td>";
+        const minsField = `<td> ${minsToNext} </td>`;
+
+        // Calculate and format time next train is due
         const nextDue = incoming(minsToNext);
         const nextDueForm = moment(nextDue).format("HH:mm");
         const timeDue = "<td>" + nextDueForm + "</td>";
-        $("tbody").append("<tr>" + trnName + dest + freq + timeDue + minsField + "</tr>");
+        $("tbody").append(`<tr> ${trnName + dest + freq + timeDue + minsField} </tr>`);
 
         // Handle the errors
     }, function (errorObject) {
         console.log("Errors handled: " + errorObject.code);
     });
 
-    database.ref().orderByChild("dateAdded").limitToLast(1).on("child_added", function (snapshot) {
-        // Change the HTML to reflect
-        $("#name-display").text(snapshot.val().train);
-        $("#email-display").text(snapshot.val().email);
-        $("#age-display").text(snapshot.val().age);
-        $("#comment-display").text(snapshot.val().comment);
-    });
 
-    // Calculate time until next train
+    // Calculate minutes until next train
 
     function nextTrain(start, freq) {
-        var now = moment().format("HH:mm");
-        var frequency = moment(freq, "minutes");
+        // Set train start date a week in the past
         var began = moment(start, "HH:mm").subtract(1, "weeks");
-        console.log(now);
-        console.log("start = " + began);
+        // Find difference between train start and now
         var diff = moment().diff(moment(began), "minutes");
-        console.log("diff "+ diff);
+        // Calculate remainder of difference divided by frequency
         var mstRecent = diff % freq;
-        console.log(moment(mstRecent, "minutes"));
+        // Calculate minutes until next train 
         var next = freq - mstRecent;
-        console.log(moment(next) + " until next");
-        // var nextMins = moment(next, "HH:mm");
-        console.log("********");
-        return(next);
+
+        return next;
     };
 
+    // Calculate time of next train
     function incoming(next) {
         var timeDue = moment().add(next, "minutes");
-        console.log("incoming at " + timeDue);
+
         return timeDue;
     }
- 
+
 }
